@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/NColusso/tinyapp/issues"
   },
-  "homepage": "https://github.com/NColusso/tinyapp#readme"
+  "homepage": "https://github.com/NColusso/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }

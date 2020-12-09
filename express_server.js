@@ -13,7 +13,7 @@ function generateRandomString() {
   let randomString = "";
   for (let i = 0; i < 6; i ++) {
     randomString += characters[Math.floor(Math.random() * 36)];
-  }
+  };
   return randomString;
 };
 
@@ -44,32 +44,35 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
-  });
+});
 
-  app.post("/urls/:shortURL/delete", (req, res) => {
-    const shortURL = req.params.shortURL
-    delete urlDatabase[shortURL];
-    res.redirect("/urls");
-  });
+app.get("/register", (req, res) => {
+  res.render("register")
+});
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL
+  delete urlDatabase[shortURL];
+  res.redirect("/urls");
+});
   
-  app.post("/urls/:shortURL", (req, res) => {
-    const shortURL = req.params.shortURL
-    urlDatabase[shortURL] = res.req.body.longURL;
-    res.redirect("/urls");
-  });
+app.post("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL
+  urlDatabase[shortURL] = res.req.body.longURL;
+  res.redirect("/urls");
+});
 
-  app.post("/urls", (req, res) => {
-    const newShortURL = generateRandomString();
-    urlDatabase[newShortURL] = res.req.body.longURL;
-    res.redirect(`/urls/${newShortURL}`);
-  });
+app.post("/urls", (req, res) => {
+  const newShortURL = generateRandomString();
+  urlDatabase[newShortURL] = res.req.body.longURL;
+  res.redirect(`/urls/${newShortURL}`);
+});
 
-  app.post("/login", (req, res) => {
-    res.cookie("username", res.req.body.username)
-    res.redirect("/urls");
-  });
+app.post("/login", (req, res) => {
+  res.cookie("username", res.req.body.username)
+  res.redirect("/urls");
+});
   
-
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });

@@ -11,7 +11,7 @@
       </div>
     </div>
       <% if (username) { %>
-        <p class="ml-auto font-weight-bold" style="margin: 1em"> Logged in as: <%= username %> </p>
+        <p class="ml-auto" style="margin: 1em; font-size: 20px"> Logged in as: <%= username %> </p>
         <button type="logout" class="btn btn-outline-dark">Logout</button>
       <% } else { %>
       <form class="form-inline ml-auto" action="/login" method="POST">

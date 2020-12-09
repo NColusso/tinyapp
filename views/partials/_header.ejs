@@ -10,5 +10,14 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
+      <% if (username) { %>
+        <p class="ml-auto font-weight-bold" style="margin: 1em"> Logged in as: <%= username %> </p>
+        <button type="logout" class="btn btn-outline-dark">Logout</button>
+      <% } else { %>
+      <form class="form-inline ml-auto" action="/login" method="POST">
+          <input class="form-control" type="text" name="username" placeholder="Username" style="width: 300px; margin: 0.1em">
+          <button type="login" class="btn btn-outline-dark">Login</button>
+      </form>
+    <% } %>
   </nav>
 </header>

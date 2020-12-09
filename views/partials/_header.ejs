@@ -12,11 +12,13 @@
     </div>
       <% if (username) { %>
         <p class="ml-auto" style="margin: 1em; font-size: 20px"> Logged in as: <%= username %> </p>
-        <button type="logout" class="btn btn-outline-dark">Logout</button>
+        <form class="form-inline ml-auto" action="/logout" method="POST">
+          <button type="logout" class="btn btn-outline-dark">Logout</button>
+      </form>
       <% } else { %>
       <form class="form-inline ml-auto" action="/login" method="POST">
           <input class="form-control" type="text" name="username" placeholder="Username" style="width: 300px; margin: 0.1em">
-          <button type="login" class="btn btn-outline-dark">Login</button>
+          <button type="submit" class="btn btn-outline-dark">Login</button>
       </form>
     <% } %>
   </nav>

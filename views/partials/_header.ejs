@@ -16,10 +16,12 @@
           <button type="logout" class="btn btn-outline-dark">Logout</button>
       </form>
       <% } else { %>
-      <form class="form-inline ml-auto" action="/login" method="POST">
-          <input class="form-control" type="text" name="username" placeholder="Username" style="width: 300px; margin: 0.1em">
-          <button type="submit" class="btn btn-outline-dark">Login</button>
+      <form class="form-inline ml-auto" action="/login" method="GET">
+          <button type="submit" style="margin: 0.5em" class="btn btn-secondary">Login</button>
       </form>
+      <form class="form-inline ml-auto" action="/register" method="GET">
+        <button type="submit" style="margin: 0.5em" class="btn btn-outline-dark">Register</button>
+    </form>
     <% } %>
   </nav>
 </header>

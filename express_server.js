@@ -44,10 +44,6 @@ function getID(username) {
   } return false;
 };
 
-function checkPassword(id, password) {
-  return (users[id].password === password) 
-};
-
 function urlsForUser(id) {
   const usersURLs = {};
   for (const url in urlDatabase) {
@@ -66,12 +62,12 @@ const users = {
   "user1": {
     id: "user1",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: bcrypt.hashSync("purple-monkey-dinosaur", 10)
   },
   "user2": {
     id: "user2",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: bcrypt.hashSync("dishwasher-funk", 10)
   }
 };
 
@@ -142,19 +138,14 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  let email = res.req.body.email
-  let password = res.req.body.password
-  // check if there is an ID for given email
-  if (getID(email)) {
-    // check if passwords match
-    if (checkPassword(getID(email), password)) {
-      res.cookie("user_id", getID(email))
-      res.redirect("/urls");
-    } else {
-      res.status(403).send("Invalid password")
-    }
+  let email = res.req.body.email;
+  let password = req.body.password;
+  // check if there is an ID for given email and if so that passwords match
+  if (getID(email) && bcrypt.compareSync(password, users[getID(email)].password)) {
+    res.cookie("user_id", getID(email))
+    res.redirect("/urls");
   } else {
-    res.status(403).send("Invalid username")
+    res.status(403).send("Invalid username or password")
   }
 });
 
@@ -164,16 +155,16 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  let email = req.body.email;
-  let password = req.body.password;
-
+  const email = req.body.email;
+  const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
   // check if username exists or is empty, if true respond with error code
   if (checkForUsername(email) || email === "") {
     res.status(400).send("Error with username - either user exists or no email entered.")
   } else {
-    let id = generateRandomString();
+    const id = generateRandomString();
     // create object for new user info to be added to users
-    let newUserInfo = {id, email, password};
+    let newUserInfo = {id, email, password: hashedPassword};
     // add new user to user object
     users[id] = newUserInfo;
     // set cookie with new user ID

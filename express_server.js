@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080; //default port 8080
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
+const bcrypt = require("bcrypt");
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -137,7 +138,6 @@ app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
   const newURL = {longURL: res.req.body.longURL, userID: req.cookies["user_id"]}
   urlDatabase[newShortURL] = newURL;
-  console.log(urlDatabase)
   res.redirect(`/urls/${newShortURL}`);
 });
 
@@ -152,7 +152,6 @@ app.post("/login", (req, res) => {
       res.redirect("/urls");
     } else {
       res.status(403).send("Invalid password")
-      console.log("users: ", users[getID(email)].password, "password", password)
     }
   } else {
     res.status(403).send("Invalid username")

@@ -7,6 +7,7 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
+
 // generate a random 6 character string - for userIDs and shortURLs
 function generateRandomString() {
   const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -99,7 +100,6 @@ app.get("/urls/:shortURL", (req, res) => {
   } else {
     res.status(401).send("Cannot view - you do not own this short URL.")
   }
-
 });
 
 app.get("/u/:shortURL", (req, res) => {

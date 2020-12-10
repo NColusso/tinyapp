@@ -24,7 +24,7 @@ function getUsername(userID) {
     }
   }
 };
-
+// check if user exists from email
 function checkForUsername(username) {
   for (const user in users) {
     if (users[user].email === username) {
@@ -33,6 +33,18 @@ function checkForUsername(username) {
   } 
   return false;
 }
+
+function getID(username) {
+  for (const user in users) {
+    if (username === users[user].email) {
+      return user;
+    }
+  } return false;
+};
+
+function checkPassword(id, password) {
+  return (users[id].password === password) 
+};
 
 
 const urlDatabase = {
@@ -52,6 +64,10 @@ const users = {
     password: "dishwasher-funk"
   }
 };
+
+app.get("/", (req, res) => {
+  res.redirect("urls")
+})
 
 app.get("/urls", (req, res) => {
   const templateVars = { username: getUsername(req.cookies["user_id"]), urls: urlDatabase, users: users };
@@ -74,7 +90,13 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.render("register")
+  const templateVars = { username: getUsername(req.cookies["user_id"]), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL],users: users };
+  res.render("register", templateVars)
+});
+
+app.get("/login", (req, res) => {
+  const templateVars = { username: getUsername(req.cookies["user_id"]), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL],users: users };
+  res.render("login", templateVars)
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -96,12 +118,25 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", res.req.body.username)
-  res.redirect("/urls");
+  let email = res.req.body.email
+  let password = res.req.body.password
+  // check if there is an ID for given email
+  if (getID(email)) {
+    // check if passwords match
+    if (checkPassword(getID(email), password)) {
+      res.cookie("user_id", getID(email))
+      res.redirect("/urls");
+    } else {
+      res.status(403).send("Invalid password")
+      console.log("users: ", users[getID(email)].password, "password", password)
+    }
+  } else {
+    res.status(403).send("Invalid username")
+  }
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 

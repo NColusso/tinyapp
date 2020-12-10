@@ -49,18 +49,18 @@ function checkPassword(id, password) {
 
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "b6UTxQ"},
+  "9sm5xK": {longURL: "http://www.google.com", userID: "i3BoGr"}
 };
 
 const users = {
-  "userRandomID": {
-    id: "userRandomID",
+  "b6UTxQ": {
+    id: "b6UTxQ",
     email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
-  "user2RandomID": {
-    id: "user2RandomID",
+  "i3BoGr": {
+    id: "i3BoGr",
     email: "user2@example.com",
     password: "dishwasher-funk"
   }
@@ -71,13 +71,13 @@ app.get("/", (req, res) => {
 })
 
 app.get("/urls", (req, res) => {
-  const templateVars = { username: getUsername(req.cookies["user_id"]), urls: urlDatabase, users: users };
+  const templateVars = { username: getUsername(req.cookies["user_id"]), urls: urlDatabase, users };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   if (req.cookies["user_id"]) {
-    const templateVars = { username: getUsername(req.cookies["user_id"]), users: users };
+    const templateVars = { username: getUsername(req.cookies["user_id"]), users };
     res.render("urls_new", templateVars);
   } else {
     res.redirect("/login");
@@ -85,12 +85,12 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { username: getUsername(req.cookies["user_id"]), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL],users: users };
+  const templateVars = { username: getUsername(req.cookies["user_id"]), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"],users: users };
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL]["longURL"];
   res.redirect(longURL);
 });
 

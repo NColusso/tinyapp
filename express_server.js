@@ -46,19 +46,28 @@ function checkPassword(id, password) {
   return (users[id].password === password) 
 };
 
+function urlsForUser(id) {
+  const usersURLs = {};
+  for (const url in urlDatabase) {
+    if (urlDatabase[url]["userID"] === id) {
+      usersURLs[url] = urlDatabase[url];
+    }
+  } return usersURLs;
+}
+
 const urlDatabase = {
-  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "b6UTxQ"},
-  "9sm5xK": {longURL: "http://www.google.com", userID: "i3BoGr"}
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "user1"},
+  "9sm5xK": {longURL: "http://www.google.com", userID: "user2"}
 };
 
 const users = {
-  "b6UTxQ": {
-    id: "b6UTxQ",
+  "user1": {
+    id: "user1",
     email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
-  "i3BoGr": {
-    id: "i3BoGr",
+  "user2": {
+    id: "user2",
     email: "user2@example.com",
     password: "dishwasher-funk"
   }
@@ -69,7 +78,7 @@ app.get("/", (req, res) => {
 })
 
 app.get("/urls", (req, res) => {
-  const templateVars = { users, username: getUsername(req.cookies["user_id"]), urls: urlDatabase };
+  const templateVars = { users, username: getUsername(req.cookies["user_id"]), urls: urlsForUser(req.cookies["user_id"]) };
   res.render("urls_index", templateVars);
 });
 
@@ -83,8 +92,14 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { users, username: getUsername(req.cookies["user_id"]), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"] };
-  res.render("urls_show", templateVars);
+  const shortURL = req.params.shortURL
+  if (req.cookies["user_id"] && req.cookies["user_id"] === urlDatabase[shortURL]["userID"]) {
+    const templateVars = { users, username: getUsername(req.cookies["user_id"]), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"] };
+    res.render("urls_show", templateVars);
+  } else {
+    res.status(401).send("Cannot view - you do not own this short URL.")
+  }
+
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -104,8 +119,12 @@ app.get("/login", (req, res) => {
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL
-  delete urlDatabase[shortURL];
-  res.redirect("/urls");
+  if (req.cookies["user_id"] && req.cookies["user_id"] === urlDatabase[shortURL]["userID"]) {
+      delete urlDatabase[shortURL];
+      res.redirect("/urls");
+  } else {
+    res.status(401).send("Cannot delete - you do not own this short URL.")
+  }
 });
   
 app.post("/urls/:shortURL", (req, res) => {
@@ -116,7 +135,9 @@ app.post("/urls/:shortURL", (req, res) => {
 
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
-  urlDatabase[newShortURL] = res.req.body.longURL;
+  const newURL = {longURL: res.req.body.longURL, userID: req.cookies["user_id"]}
+  urlDatabase[newShortURL] = newURL;
+  console.log(urlDatabase)
   res.redirect(`/urls/${newShortURL}`);
 });
 

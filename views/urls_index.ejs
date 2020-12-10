@@ -27,7 +27,7 @@
             <% let deleteActionURL = `/urls/${url}/delete` %>
             <% let editActionURL = `/urls/${url}` %>
             <td><%= url %></td>
-            <td><%= urls[url]%></td>
+            <td><%= urls[url]["longURL"]%></td>
             <td><a href="/urls/<%=url%>" class="btn btn-outline-primary">Edit</a></td>
             <td><form method="POST" action=<%=deleteActionURL%>>
               <button type="submit" class="btn btn-outline-danger">Delete</button>

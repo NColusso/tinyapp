@@ -22,15 +22,14 @@ function checkForUsername(username, database) {
       return true;
     }
   }
-  return false;
 }
-// return userID from given email
+// return userID from given email or false if none
 function getUserByEmail(username, database) {
   for (const user in database) {
     if (username === database[user].email) {
       return user;
     }
-  } return false;
+  }
 }
 // return only URLs for specific user
 function urlsForUser(id, database) {

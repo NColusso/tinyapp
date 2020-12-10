@@ -22,37 +22,37 @@ function generateRandomString() {
   };
   return randomString;
 };
-// return username based on userID from users object
-function getUsername(userID) {
-  for (const user in users) {
+// return username based on userID from database
+function getUsername(userID, database) {
+  for (const user in database) {
     if (user === userID) {
-      return users[user].email
+      return database[user].email
     }
   }
 };
-// check if user exists from email
-function checkForUsername(username) {
-  for (const user in users) {
-    if (users[user].email === username) {
+// check if user exists in database from email
+function checkForUsername(username, database) {
+  for (const user in database) {
+    if (database[user].email === username) {
       return true;
     } 
   } 
   return false;
 }
 
-function getID(username) {
-  for (const user in users) {
-    if (username === users[user].email) {
+function getID(username, database) {
+  for (const user in database) {
+    if (username === database[user].email) {
       return user;
     }
   } return false;
 };
 
-function urlsForUser(id) {
+function urlsForUser(id, database) {
   const usersURLs = {};
-  for (const url in urlDatabase) {
-    if (urlDatabase[url]["userID"] === id) {
-      usersURLs[url] = urlDatabase[url];
+  for (const url in database) {
+    if (database[url]["userID"] === id) {
+      usersURLs[url] = database[url];
     }
   } return usersURLs;
 }
@@ -80,13 +80,13 @@ app.get("/", (req, res) => {
 })
 
 app.get("/urls", (req, res) => {
-  const templateVars = { users, username: getUsername(req.session["user_id"]), urls: urlsForUser(req.session["user_id"]) };
+  const templateVars = { users, username: getUsername(req.session["user_id"], users), urls: urlsForUser(req.session["user_id"], urlDatabase) };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   if (req.session["user_id"]) {
-    const templateVars = { users, username: getUsername(req.session["user_id"]) };
+    const templateVars = { users, username: getUsername(req.session["user_id"], users) };
     res.render("urls_new", templateVars);
   } else {
     res.redirect("/login");
@@ -99,7 +99,7 @@ app.get("/urls/:shortURL", (req, res) => {
     return res.status(404).send("Tiny URL does not exist")
   }
   if (req.session["user_id"] && req.session["user_id"] === urlDatabase[shortURL]["userID"]) {
-    const templateVars = { users, username: getUsername(req.session["user_id"]), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"] };
+    const templateVars = { users, username: getUsername(req.session["user_id"], users), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"] };
     res.render("urls_show", templateVars);
   } else {
     res.status(401).send("Cannot view - you either do not own this short URL or are not logged in.")
@@ -112,12 +112,12 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = { users, username: getUsername(req.session["user_id"]), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { users, username: getUsername(req.session["user_id"], users), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("register", templateVars)
 });
 
 app.get("/login", (req, res) => {
-  const templateVars = { users, username: getUsername(req.session["user_id"]), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { users, username: getUsername(req.session["user_id"], users), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("login", templateVars)
 });
 
@@ -148,8 +148,8 @@ app.post("/login", (req, res) => {
   let email = res.req.body.email;
   let password = req.body.password;
   // check if there is an ID for given email and if so that passwords match
-  if (getID(email) && bcrypt.compareSync(password, users[getID(email)].password)) {
-    req.session["user_id"] = getID(email)
+  if (getID(email, users) && bcrypt.compareSync(password, users[getID(email, users)].password)) {
+    req.session["user_id"] = getID(email, users)
     res.redirect("/urls");
   } else {
     res.status(403).send("Invalid username or password")
@@ -166,7 +166,7 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
   // check if username exists or is empty, if true respond with error code
-  if (checkForUsername(email) || email === "") {
+  if (checkForUsername(email, users) || email === "") {
     res.status(400).send("Error with username - either user exists or no email entered.")
   } else {
     const id = generateRandomString();

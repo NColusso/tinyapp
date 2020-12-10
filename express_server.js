@@ -3,7 +3,6 @@ const app = express();
 const PORT = 8080; //default port 8080
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
-const e = require("express");
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -47,7 +46,6 @@ function checkPassword(id, password) {
   return (users[id].password === password) 
 };
 
-
 const urlDatabase = {
   "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "b6UTxQ"},
   "9sm5xK": {longURL: "http://www.google.com", userID: "i3BoGr"}
@@ -71,13 +69,13 @@ app.get("/", (req, res) => {
 })
 
 app.get("/urls", (req, res) => {
-  const templateVars = { username: getUsername(req.cookies["user_id"]), urls: urlDatabase, users };
+  const templateVars = { users, username: getUsername(req.cookies["user_id"]), urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   if (req.cookies["user_id"]) {
-    const templateVars = { username: getUsername(req.cookies["user_id"]), users };
+    const templateVars = { users, username: getUsername(req.cookies["user_id"]) };
     res.render("urls_new", templateVars);
   } else {
     res.redirect("/login");
@@ -85,7 +83,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { username: getUsername(req.cookies["user_id"]), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"],users: users };
+  const templateVars = { users, username: getUsername(req.cookies["user_id"]), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"] };
   res.render("urls_show", templateVars);
 });
 
@@ -95,12 +93,12 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = { username: getUsername(req.cookies["user_id"]), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL],users: users };
+  const templateVars = { users, username: getUsername(req.cookies["user_id"]), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("register", templateVars)
 });
 
 app.get("/login", (req, res) => {
-  const templateVars = { username: getUsername(req.cookies["user_id"]), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL],users: users };
+  const templateVars = { users, username: getUsername(req.cookies["user_id"]), shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("login", templateVars)
 });
 
